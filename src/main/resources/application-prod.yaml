@@ -44,7 +44,8 @@ eureka:
     fetch-registry: true
   instance:
     hostname: ${EUREKA_HOST:localhost}
-    non-secure-port-enabled: true 
+    non-secure-port-enabled: false
+    secure-port-enabled: true
 
 management:
   endpoints:

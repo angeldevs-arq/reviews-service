@@ -2,7 +2,6 @@ package com.angeldevs.reviews_service.reviews.interfaces.rest;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +21,7 @@ import com.angeldevs.reviews_service.reviews.domain.model.queries.GetReviewByIdQ
 import com.angeldevs.reviews_service.reviews.domain.services.ReviewCommandService;
 import com.angeldevs.reviews_service.reviews.domain.services.ReviewQueryService;
 import com.angeldevs.reviews_service.reviews.interfaces.rest.resources.CreateReviewResource;
+import com.angeldevs.reviews_service.reviews.interfaces.rest.resources.EventResource;
 import com.angeldevs.reviews_service.reviews.interfaces.rest.resources.ProfileResource;
 import com.angeldevs.reviews_service.reviews.interfaces.rest.resources.ReviewResource;
 import com.angeldevs.reviews_service.reviews.interfaces.rest.transform.CreateReviewCommandFromResourceAssembler;
@@ -29,12 +29,12 @@ import com.angeldevs.reviews_service.reviews.interfaces.rest.transform.ReviewRes
 import com.angeldevs.reviews_service.shared.infrastructure.JwtUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
@@ -46,6 +46,8 @@ public class ReviewsController {
         private RestClient client;
         @Value("${PROFILE_SERVICE_URL}")
         private String profileServiceUrl;
+        @Value("${EVENT_SERVICE_URL}")
+        private String eventServiceUrl;
 
         public ReviewsController(
                         ReviewCommandService commandService,
@@ -73,9 +75,17 @@ public class ReviewsController {
                                 .retrieve()
                                 .toEntity(ProfileResource.class);
 
-                ProfileResource profile = profileResponse.getBody();
+                var profile = profileResponse.getBody();
 
-                var command = CreateReviewCommandFromResourceAssembler.toCommand(resource, profile.fullName());
+                // Get event from Event Service
+                var eventResponse = client.get()
+                                .uri(eventServiceUrl + "/api/v1/social-events/{id}", resource.eventId())
+                                .retrieve()
+                                .toEntity(EventResource.class);
+
+                var event = eventResponse.getBody();
+
+                var command = CreateReviewCommandFromResourceAssembler.toCommand(resource, profile, event);
                 var savedOpt = commandService.handle(command);
                 return savedOpt.map(saved -> {
                         ReviewResource r = ReviewResourceFromEntityAssembler.toResource(saved);

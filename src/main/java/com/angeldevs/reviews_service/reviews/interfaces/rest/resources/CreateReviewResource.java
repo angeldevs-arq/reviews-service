@@ -8,8 +8,10 @@ import java.time.LocalDate;
 
 public class CreateReviewResource {
 
-    @NotBlank
-    private String reviewer;
+    /*
+     * @NotBlank
+     * private String reviewer;
+     */
 
     @NotBlank
     private String eventName;
@@ -31,13 +33,15 @@ public class CreateReviewResource {
     public CreateReviewResource() {
     }
 
-    public String getReviewer() {
-        return reviewer;
-    }
-
-    public void setReviewer(String reviewer) {
-        this.reviewer = reviewer;
-    }
+    /*
+     * public String getReviewer() {
+     * return reviewer;
+     * }
+     * 
+     * public void setReviewer(String reviewer) {
+     * this.reviewer = reviewer;
+     * }
+     */
 
     public String getEventName() {
         return eventName;

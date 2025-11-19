@@ -5,9 +5,9 @@ import com.angeldevs.reviews_service.reviews.interfaces.rest.resources.CreateRev
 
 public class CreateReviewCommandFromResourceAssembler {
 
-    public static CreateReviewCommand toCommand(CreateReviewResource resource) {
+    public static CreateReviewCommand toCommand(CreateReviewResource resource, String reviewer) {
         return new CreateReviewCommand(
-                resource.getReviewer(),
+                reviewer,
                 resource.getEventName(),
                 resource.getEventDate(),
                 resource.getContent(),
